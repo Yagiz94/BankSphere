@@ -35,10 +35,7 @@
 
 	<dependencies>
 		<!-- Spring JPA: Provides built-in support for JPA and ORM integration with Hibernate -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
+
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -63,12 +60,6 @@
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 
-		<!-- Spring Web: Provides support for building web applications, including RESTful APIs -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-
 		<!-- Spring Cloud Gateway MVC: Provides support for building cloud-native API gateways using Spring MVC -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -90,12 +81,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Spring Test: Provides tools for testing Spring Boot applications, including mocks and utilities -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
 
 		<!-- Hibernate Core: Hibernate ORM framework for managing JPA entities and database interactions -->
 		<dependency>
@@ -130,8 +115,8 @@
 		<!-- JWT Library for token management -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt</artifactId>
-			<version>${jjwt.version}</version>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.12.6</version>
 		</dependency>
 
 		<!-- Lombok for reducing boilerplate code -->
@@ -152,6 +137,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<version>42.7.2</version>
 			<scope>runtime</scope>
 		</dependency>
 
