@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>bankapp</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>bankapp</name>
-	<description>bankapp</description>
+	<artifactId>bank-sphere</artifactId>
+	<version>0.0.1</version>
+	<name>bankSphere</name>
+	<description>bankSphere</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -30,13 +30,11 @@
 		<java.version>23</java.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<maven.compiler.release>23</maven.compiler.release>
-		<jjwt.version>0.11.5</jjwt.version>
+		<jjwt.version>0.12.6</jjwt.version>
 	</properties>
 
 	<dependencies>
 		<!-- Spring JPA: Provides built-in support for JPA and ORM integration with Hibernate -->
-
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
@@ -116,7 +114,7 @@
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
-			<version>0.12.6</version>
+			<version>${jjwt.version}</version>
 		</dependency>
 
 		<!-- Lombok for reducing boilerplate code -->
