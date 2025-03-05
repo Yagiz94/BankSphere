@@ -1,6 +1,8 @@
 // entity/User.java
 package com.example.bankSphere.entity;
 
+import com.example.bankSphere.enums.KYC_STATUS;
+import com.example.bankSphere.enums.ROLE;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,44 +13,82 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
+    @Column(name = "email", nullable = true, unique = false)
     private String email;
+    @Column(name = "password", nullable = false, unique = false)
     private String password;
-    private String phone;
+    @Column(name = "phoneNumber", nullable = false, unique = true)
+    private String phoneNumber;
 
     // For simplicity, using a string role; you could also use a separate Role entity
-    private String role;
+    @Column(name = "role", nullable = false, unique = false)
+    private ROLE role;
 
     // KYC status: PENDING, VERIFIED, or REJECTED
-    private String kycStatus;
+    @Column(name = "kycStatus", nullable = false, unique = false)
+    private KYC_STATUS kycStatus;
 
-    public String getId() {
-        return String.valueOf(Math.random());
+    public User(String username, String email, String password, String phoneNumber, ROLE role, KYC_STATUS kycStatus) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
+        this.kycStatus = kycStatus;
     }
 
-    public void setUsername(Object username) {
-
-    }
-
-    public void setEmail(String email) {
-    }
-
-    public void setPassword(String encode) {
-
-    }
-
-    public void setPhone(Object phone) {
-
-    }
-
-    public void setRole(String user) {
-
-    }
-
-    public void setKycStatus(String pending) {
-
+    public User() {
     }
 
     // Getters and Setters
-    // ...
+    public Long getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public ROLE getRole() {
+        return role;
+    }
+
+    public void setKycStatus(KYC_STATUS kycStatus) {
+        this.kycStatus.setValue(kycStatus.getValue());
+    }
+
+    public KYC_STATUS getKycStatus() {
+        return kycStatus;
+    }
+
 }
