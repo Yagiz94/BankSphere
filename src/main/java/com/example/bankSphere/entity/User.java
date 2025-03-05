@@ -15,19 +15,19 @@ public class User {
 
     @Column(name = "username", nullable = false, unique = true)
     private String username;
-    @Column(name = "email", nullable = true, unique = false)
+    @Column(name = "email")
     private String email;
-    @Column(name = "password", nullable = false, unique = false)
+    @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "phoneNumber", nullable = false, unique = true)
     private String phoneNumber;
 
     // For simplicity, using a string role; you could also use a separate Role entity
-    @Column(name = "role", nullable = false, unique = false)
+    @Column(name = "role", nullable = false)
     private ROLE role;
 
     // KYC status: PENDING, VERIFIED, or REJECTED
-    @Column(name = "kycStatus", nullable = false, unique = false)
+    @Column(name = "kycStatus", nullable = false)
     private KYC_STATUS kycStatus;
 
     public User(String username, String email, String password, String phoneNumber, ROLE role, KYC_STATUS kycStatus) {
@@ -39,8 +39,7 @@ public class User {
         this.kycStatus = kycStatus;
     }
 
-    public User() {
-    }
+    public User() {}
 
     // Getters and Setters
     public Long getId() {
@@ -51,9 +50,7 @@ public class User {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public void setUsername(String username) { this.username = username; }
 
     public String getEmail() {
         return email;
@@ -82,6 +79,8 @@ public class User {
     public ROLE getRole() {
         return role;
     }
+    public void setRole(ROLE role) { this.role = role; }
+
 
     public void setKycStatus(KYC_STATUS kycStatus) {
         this.kycStatus.setValue(kycStatus.getValue());
@@ -90,5 +89,6 @@ public class User {
     public KYC_STATUS getKycStatus() {
         return kycStatus;
     }
+
 
 }

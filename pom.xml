@@ -84,21 +84,39 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 
-		<!-- Currently Disable Dependencies due to yet-to-implement database services or a further required analysis
-
-		Spring Data MongoDB
+		<!--Spring Data MongoDB-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>6.0.12</version> <!-- Version aligned with Spring Boot 3.1.4 -->
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+			<version>3.1.4</version>
+		</dependency>
+
+
+
+		<!--Spring Cloud Gateway
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway-mvc</artifactId>
+		</dependency>
+-->
+		<!-- Currently Disable Dependencies due to yet-to-implement database services or a further required analysis
 
 		Spring Data Redis
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
-
-
 
 		Spring Cloud Gateway
 		<dependency>
@@ -150,7 +168,6 @@
 		-->
 
 	</dependencies>
-
 
 	<dependencyManagement>
 		<dependencies>

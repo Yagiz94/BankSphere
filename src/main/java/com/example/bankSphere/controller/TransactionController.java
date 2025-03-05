@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/transactions")
 public class TransactionController {
 
-    @Autowired
+  @Autowired
   private TransactionService transactionService;
 
     @PostMapping("/transfer")

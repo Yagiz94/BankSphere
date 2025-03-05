@@ -16,11 +16,19 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<String> registerUser(@RequestBody(required = false) UserDto userDto) {
+        System.out.println("Endpoint hit!"); // Debugging
+
+        if (userDto == null) {
+            return ResponseEntity.badRequest().body("Request body is missing!");
+        }
+
+        System.out.println("Request body received: " + userDto);
         User user = userService.registerUser(userDto);
+        return ResponseEntity.ok("Registration processed successfully!");
+
+
         // Optionally create an account record for the new user
-        // ...
-        return ResponseEntity.ok("User registered successfully with ID: " + user.getId());
     }
 
     // Login endpoint would typically validate credentials and return a JWT token.

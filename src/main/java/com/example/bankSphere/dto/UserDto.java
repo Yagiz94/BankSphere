@@ -6,32 +6,25 @@ import com.example.bankSphere.enums.ROLE;
 public class UserDto {
     private String username;
     private String email;
-
     private ROLE role;
-
+    private String phone;
+    private String password;
     private KYC_STATUS kycStatus;
 
-    public UserDto(String username, String email) {
-        this.username = username;
-        this.email = email;
-        this.role = ROLE.PERSONAL_USER;
-        this.kycStatus = KYC_STATUS.PENDING;
-    }
+    public UserDto() {}
 
-    public String getUsername() {
-        return username;
-    }
+    public String getUsername() { return username; }
 
     public String getEmail() {
         return email;
     }
 
-    public CharSequence getPassword() {
-        return null;
+    public String getPassword() {
+        return password;
     }
 
     public String getPhone() {
-        return null;
+        return phone;
     }
 
     public ROLE getRole() {

@@ -4,6 +4,7 @@ package com.example.bankSphere.service;
 import com.example.bankSphere.dto.UserDto;
 import com.example.bankSphere.entity.User;
 import com.example.bankSphere.enums.KYC_STATUS;
+import com.example.bankSphere.enums.ROLE;
 import com.example.bankSphere.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,17 @@ public class UserService {
     private KycService kycService;
 
     public User registerUser(UserDto userDto) {
-        // Check if email/username already exists (omitted for brevity)
-        User user = new User(userDto.getUsername(), userDto.getEmail(), passwordEncoder.encode(userDto.getPassword()), userDto.getPhone(), userDto.getRole(), userDto.getKycStatus());
-//        user.setUsername(userDto.getUsername());
-//        user.setEmail(userDto.getEmail());
-//        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-//        user.setPhoneNumber(userDto.getPhone());
-//        user.setRole("USER");
-//        user.setKycStatus("PENDING");
+        // Define a User with userDto data
+        User user = new User();
+
+        System.out.println(userDto.getUsername() + "-" + userDto.getEmail() + "-" + userDto.getPhone());
+
+        //TODO check whether username, phone exist --> verify user
+        user.setUsername(userDto.getUsername());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setPhoneNumber(userDto.getPhone());
+        user.setRole(ROLE.PERSONAL_USER);
 
         // Call external KYC service to verify user documents
         boolean isKycVerified = kycService.verifyUser(userDto);
