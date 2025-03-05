@@ -5,7 +5,7 @@ public enum KYC_STATUS {
     VERIFIED(1),
     REJECTED(2);
 
-    private final int value;
+    private int value;
 
     KYC_STATUS(final int value) {
         this.value = value;
@@ -13,5 +13,9 @@ public enum KYC_STATUS {
 
     public int getValue() {
         return value;
+    }
+
+    public int setValue(int value) {
+        return this.value = value;
     }
 }
