@@ -36,5 +36,6 @@ build/
 mvnw.cmd
 mvnw
 .mvn
+bakapp.iml
 /src/main/resources/application.properties
 /target
