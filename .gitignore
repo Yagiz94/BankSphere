@@ -36,6 +36,7 @@ build/
 mvnw.cmd
 mvnw
 .mvn
-bakapp.iml
+bankapp.iml
+compiler.xml
 /src/main/resources/application.properties
 /target
