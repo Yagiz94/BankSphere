@@ -17,6 +17,7 @@ public class AdminController {
 
     @GetMapping("/transactions")
     public ResponseEntity<List<Transaction>> getAllTransactions() {
+        System.out.println("Loading all transactions...");
         List<Transaction> transactions = adminService.getAllTransactions();
         return ResponseEntity.ok(transactions);
     }

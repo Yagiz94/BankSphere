@@ -6,6 +6,7 @@ import com.example.bankSphere.entity.User;
 import com.example.bankSphere.enums.KYC_STATUS;
 import com.example.bankSphere.enums.ROLE;
 import com.example.bankSphere.repository.UserRepository;
+import com.example.bankSphere.repository.UserLoggerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,11 @@ public class UserService {
         user.setKycStatus(isKycVerified ? KYC_STATUS.VERIFIED : KYC_STATUS.REJECTED);
 
         return userRepository.save(user);
+    }
+    public User retrieveUser(User user) {
+        UserLoggerRepository logger = null;
+        return userRepository.findByUsername(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     // Additional methods (e.g. getUserByUsername, updateProfile)...

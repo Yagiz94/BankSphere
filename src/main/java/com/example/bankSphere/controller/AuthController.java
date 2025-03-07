@@ -19,9 +19,7 @@ public class AuthController {
     public ResponseEntity<String> registerUser(@RequestBody(required = false) UserDto userDto) {
         System.out.println("Endpoint hit!"); // Debugging
 
-        if (userDto == null) {
-            return ResponseEntity.badRequest().body("Request body is missing!");
-        }
+        if (userDto == null) { return ResponseEntity.badRequest().body("Request body is missing!"); }
 
         System.out.println("Request body received: " + userDto);
         User user = userService.registerUser(userDto);

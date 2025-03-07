@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
+/*
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
         ex.printStackTrace(); // Log exception details
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("Runtime error occurred: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-
+*/
 
     // Additional exception handlers...
 }
