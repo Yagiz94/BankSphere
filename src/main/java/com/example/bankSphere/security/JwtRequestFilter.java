@@ -31,10 +31,12 @@ public class JwtRequestFilter implements Filter {
             token = token.substring(7); // Strip "Bearer " prefix
             if (isTokenValid(token)) {
                 // Add user details to SecurityContext, if required
+                System.out.println("Token is valid");
             }
         } else {
             // Optionally handle missing or invalid tokens
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            System.out.println("Invalid token");
             return;
         }
 
