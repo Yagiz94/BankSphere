@@ -58,15 +58,17 @@ public class SecurityConfig {
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    private final JwtRequestFilter jwtRequestFilter;
 
+    public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
+        this.jwtRequestFilter = jwtRequestFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/test/**").permitAll() // Allow all requests to /api/test/** paths
+                        .requestMatchers("/api/**").permitAll() // Allow all requests to /api/test/** paths
                         .requestMatchers("/actuator/**").permitAll() // Explicitly allow access to Actuator endpoints
                         .anyRequest().authenticated()               // Require authentication for all other requests
                 )

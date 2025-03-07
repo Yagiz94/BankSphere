@@ -108,13 +108,30 @@
 			<version>3.1.4</version>
 		</dependency>
 
-
-
-		<!--Spring Cloud Gateway
+		<!--Tokenization-->
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-gateway-mvc</artifactId>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>${jjwt.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>${jjwt.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId> <!-- or use jjwt-gson -->
+			<version>${jjwt.version}</version>
+		</dependency>
+
+
+
+	<!--Spring Cloud Gateway
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-gateway-mvc</artifactId>
+    </dependency>
 -->
 		<!-- Currently Disable Dependencies due to yet-to-implement database services or a further required analysis
 

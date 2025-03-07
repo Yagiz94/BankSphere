@@ -17,7 +17,13 @@ public class TransactionController {
 
     @PostMapping("/transfer")
     public ResponseEntity<Transaction> transferFunds(@RequestBody TransactionDto transactionDto) {
+        System.out.println("Endpoint hit!");
        Transaction transaction = transactionService.processTransaction(transactionDto);
         return ResponseEntity.ok(transaction);
+    }
+    @GetMapping("/list")
+    public ResponseEntity<String> getAllTransactions() {
+        System.out.println("Received request!");
+        return ResponseEntity.ok("API is working fine.");
     }
 }
