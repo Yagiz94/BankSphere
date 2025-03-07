@@ -33,7 +33,7 @@ public class UserService {
         user.setEmail(userDto.getEmail());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setPhoneNumber(userDto.getPhone());
-        user.setRole(ROLE.PERSONAL_USER);
+        user.setRole(userDto.getRole());
 
         // Call external KYC service to verify user documents
         boolean isKycVerified = kycService.verifyUser(userDto);
@@ -43,8 +43,8 @@ public class UserService {
     }
     public User retrieveUser(User user) {
         UserLoggerRepository logger = null;
-        return userRepository.findByUsername(user.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User id not found"));
     }
 
     // Additional methods (e.g. getUserByUsername, updateProfile)...

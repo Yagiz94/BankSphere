@@ -30,16 +30,17 @@ public class User {
     @Column(name = "kycStatus", nullable = false)
     private KYC_STATUS kycStatus;
 
-    public User(String username, String email, String password, String phoneNumber, ROLE role, KYC_STATUS kycStatus) {
+    public User(String username, String email, String password, String phoneNumber) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
-        this.role = role;
-        this.kycStatus = kycStatus;
+        this.kycStatus = KYC_STATUS.PENDING;
+        this.role = ROLE.PERSONAL_USER;
     }
 
-    public User() {}
+    public User() {
+    }
 
     // Getters and Setters
     public Long getId() {
@@ -50,7 +51,9 @@ public class User {
         return username;
     }
 
-    public void setUsername(String username) { this.username = username; }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     public String getEmail() {
         return email;
@@ -79,7 +82,10 @@ public class User {
     public ROLE getRole() {
         return role;
     }
-    public void setRole(ROLE role) { this.role = role; }
+
+    public void setRole(int roleValue) {
+        this.role.setValue(roleValue);
+    }
 
 
     public void setKycStatus(KYC_STATUS kycStatus) {

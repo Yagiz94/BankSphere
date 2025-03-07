@@ -7,6 +7,7 @@ import com.example.bankSphere.repository.AccountRepository;
 import com.example.bankSphere.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 
 @Service
@@ -18,9 +19,9 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
-    public Account getAccountByUsername(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public Account getAccountByID(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User id not found"));
         return accountRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
     }
