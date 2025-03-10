@@ -16,10 +16,15 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody(required = false) UserDto userDto) {
+    public ResponseEntity<String> registerUser(@RequestBody UserDto userDto) {
         System.out.println("Endpoint hit!"); // Debugging
 
-        if (userDto == null) { return ResponseEntity.badRequest().body("Request body is missing!"); }
+        if (userDto == null) {
+            return ResponseEntity.badRequest().body("Request body is missing!"); }
+        else if (userDto.getUsername() == null || userDto.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Username or password is missing!"); }
+        else if (userDto.getPhone() == null) {
+            return ResponseEntity.badRequest().body("Phone number is missing!"); }
 
         System.out.println("Request body received: " + userDto);
         User user = userService.registerUser(userDto);

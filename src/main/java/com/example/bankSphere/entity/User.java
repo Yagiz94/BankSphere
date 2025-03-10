@@ -84,12 +84,12 @@ public class User {
     }
 
     public void setRole(int roleValue) {
-        this.role.setValue(roleValue);
+        this.role = ROLE.values()[roleValue];
     }
 
 
     public void setKycStatus(KYC_STATUS kycStatus) {
-        this.kycStatus.setValue(kycStatus.getValue());
+        this.kycStatus = kycStatus;
     }
 
     public KYC_STATUS getKycStatus() {

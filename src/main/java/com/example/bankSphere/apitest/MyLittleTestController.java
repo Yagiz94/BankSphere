@@ -1,4 +1,4 @@
-package com.example.bankSphere.controller;
+package com.example.bankSphere.apitest;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

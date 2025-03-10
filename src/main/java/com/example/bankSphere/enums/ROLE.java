@@ -5,7 +5,7 @@ public enum ROLE {
     CORPORATE_USER(1),
     ADMIN(2);
 
-    private final int value;
+    private int value;
 
     ROLE(final int value) {
         this.value = value;
@@ -13,5 +13,9 @@ public enum ROLE {
 
     public int getValue() {
         return value;
+    }
+
+    public void setValue(int roleValue) {
+        this.value=roleValue;
     }
 }

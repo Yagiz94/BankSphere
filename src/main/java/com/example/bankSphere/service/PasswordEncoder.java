@@ -5,6 +5,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class PasswordEncoder {
     public String encode(String password) {
-        return null;
+        return password;
     }
 }
