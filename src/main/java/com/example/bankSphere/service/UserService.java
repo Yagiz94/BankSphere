@@ -3,12 +3,15 @@ package com.example.bankSphere.service;
 
 import com.example.bankSphere.dto.UserDto;
 import com.example.bankSphere.entity.User;
+import com.example.bankSphere.entity.UserLogger;
 import com.example.bankSphere.enums.KYC_STATUS;
-import com.example.bankSphere.enums.ROLE;
-import com.example.bankSphere.repository.UserRepository;
 import com.example.bankSphere.repository.UserLoggerRepository;
+import com.example.bankSphere.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -22,13 +25,16 @@ public class UserService {
     @Autowired
     private KycService kycService;
 
+    @Autowired
+    private UserLoggerRepository userLoggerRepository;
+
+    // Register a new user
     public User registerUser(UserDto userDto) {
+
         // Define a User with userDto data
         User user = new User();
 
-        System.out.println(userDto.getUsername() + "-" + userDto.getEmail() + "-" + userDto.getPhone());
-
-        //TODO check whether username, phone exist --> verify user
+        // Set user attributes
         user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
@@ -39,13 +45,22 @@ public class UserService {
         boolean isKycVerified = kycService.verifyUser(userDto);
         user.setKycStatus(isKycVerified ? KYC_STATUS.VERIFIED : KYC_STATUS.REJECTED);
 
+        // Verify if the user already exists before registering a new user
+        if (checkUserExists(user)) {
+            throw new RuntimeException("The user already exists");
+        }
+
+        // Register the user
         return userRepository.save(user);
     }
-    public User retrieveUser(User user) {
-        UserLoggerRepository logger = null;
-        return userRepository.findById(user.getId())
-                .orElseThrow(() -> new RuntimeException("User id not found"));
+
+    private Boolean checkUserExists(User user) {
+        return retrieveUserByName(user.getUsername()).isPresent();
     }
 
-    // Additional methods (e.g. getUserByUsername, updateProfile)...
+    // Retrieve a User by name
+    public Optional<User> retrieveUserByName(String username) {
+        return userRepository.findByUsername(username);
+    }
+
 }
