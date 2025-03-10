@@ -3,15 +3,11 @@ package com.example.bankSphere.service;
 
 import com.example.bankSphere.dto.UserDto;
 import com.example.bankSphere.entity.User;
-import com.example.bankSphere.entity.UserLogger;
 import com.example.bankSphere.enums.KYC_STATUS;
 import com.example.bankSphere.repository.UserLoggerRepository;
 import com.example.bankSphere.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -55,11 +51,11 @@ public class UserService {
     }
 
     private Boolean checkUserExists(User user) {
-        return retrieveUserByName(user.getUsername()).isPresent();
+        return retrieveUserByName(user.getUsername())!=null;
     }
 
     // Retrieve a User by name
-    public Optional<User> retrieveUserByName(String username) {
+    public User retrieveUserByName(String username) {
         return userRepository.findByUsername(username);
     }
 

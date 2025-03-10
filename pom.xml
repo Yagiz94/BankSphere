@@ -125,8 +125,6 @@
 			<version>${jjwt.version}</version>
 		</dependency>
 
-
-
 	<!--Spring Cloud Gateway
     <dependency>
         <groupId>org.springframework.cloud</groupId>

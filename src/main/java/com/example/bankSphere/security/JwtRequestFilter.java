@@ -28,6 +28,7 @@ public class JwtRequestFilter implements Filter {
         // 2. Extract and validate JWT (not implemented here - replace with your own logic).
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
+            System.out.println("Received token: " + token);
             token = token.substring(7); // Strip "Bearer " prefix
             if (isTokenValid(token)) {
                 // Add user details to SecurityContext, if required
@@ -42,7 +43,7 @@ public class JwtRequestFilter implements Filter {
 
         // Continue the filter chain if everything is valid
         filterChain.doFilter(servletRequest, servletResponse);
-    }
+        }
 
     private boolean isTokenValid(String token) {
         // Add your JWT validation logic here (e.g., verify signature, expiration, etc.)
