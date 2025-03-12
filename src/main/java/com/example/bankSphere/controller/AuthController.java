@@ -1,7 +1,7 @@
 // controller/AuthController.java
 package com.example.bankSphere.controller;
 
-import com.example.bankSphere.dto.UserDto;
+import com.example.bankSphere.dto.UserRequestDto;
 import com.example.bankSphere.entity.User;
 import com.example.bankSphere.entity.UserLogger;
 import com.example.bankSphere.entity.UserResponse;
@@ -9,8 +9,14 @@ import com.example.bankSphere.exception.UserAlreadyExistsException;
 import com.example.bankSphere.exception.UserFieldsMissingException;
 import com.example.bankSphere.exception.UserLoginCredentialsInvalidException;
 import com.example.bankSphere.exception.UserNotFoundException;
+import com.example.bankSphere.service.AccountService;
 import com.example.bankSphere.service.UserLoggerService;
+
 import com.example.bankSphere.service.UserService;
+import com.mongodb.MongoSocketException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,10 +24,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Key;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -34,10 +39,11 @@ public class AuthController {
     @Autowired
     private UserLoggerService userLoggerService;
 
-    private static final String SECRET_KEY = "your-secret-key";
+    @Autowired
+    private AccountService accountService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<String> registerUser(@RequestBody UserRequestDto userDto) {
 
 
         // check if the request body is missing
@@ -51,26 +57,37 @@ public class AuthController {
             throw new UserFieldsMissingException("Missing fields: " + missingFields);
         }
 
-        // register the user or return an error
-        try {
-            User user = userService.registerUser(userDto);
-            System.out.println(
-                    userLoggerService.saveUserLogger(new UserLogger(
-                            user.getUsername(),
-                            user.getEmail(),
-                            Instant.now().toString(),
-                            "New User")
-            ));
-        } catch (Exception e) {
+        // register a new user with a new account and log the registry
+        User user;
+        try{
+            user = userService.registerUser(userDto);
+        }
+        catch(RuntimeException e){
             throw new UserAlreadyExistsException("User already exists!");
         }
+        try {
+            userLoggerService.saveUserLogger(
+                new UserLogger(user.getUsername(), user.getEmail(), Instant.now().toString(), "New User"));
+        }
+        catch (MongoSocketException e){
+            System.out.println("Something went wrong with logging but user registration is successful");
+        }
+        try {
+            accountService.createAccountForUser(user);
+        }
+        catch (RuntimeException e){
+            return ResponseEntity.badRequest().body("Account creation has failed");
+        }
+
+        // successful registration responds a token value
         return ResponseEntity.ok("{\n" +
                 "\t\"message\": \"User registered successfully!\"" + "\n" +
-                "\t\"token\": \"" + tokenizer() + "\"\n}");
+                "\t\"token\": \"" + generateToken(user.getUsername(),user.getPassword()) + "\"\n}");
+
     }
 
     // check missing JSON attributes (fields)
-    private String getMissingFields(UserDto userDto) {
+    private String getMissingFields(UserRequestDto userDto) {
         List<String> missingFields = new ArrayList<>();
         if (userDto.getUsername() == null) missingFields.add("username");
         if (userDto.getPassword() == null) missingFields.add("password");
@@ -80,9 +97,9 @@ public class AuthController {
 
     // Login endpoint would typically validate credentials and return a JWT token.
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserResponse> login(@RequestBody UserRequestDto userDto) {
         try {
-            String token = tokenizer();
+            //TODO generateToken()
             //TODO validate token
             //TODO validate user login info
             User user = userService.retrieveUserByName(userDto.getUsername());
@@ -101,36 +118,23 @@ public class AuthController {
         }
     }
 
-    private String tokenizer() {
-        // 1. Create Header
-        String header = Base64.getUrlEncoder().withoutPadding().encodeToString(
-                "{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes());
+    // secure generator
+    private String generateToken(String username, String password) {
+        // Define a secure secret key (using HMAC SHA-256)
+        byte[] secretKeyBytes = new byte[32];  // 32 bytes = 256 bits for HS256
+        new java.security.SecureRandom().nextBytes(secretKeyBytes);
+        Key secretKey = Keys.hmacShaKeyFor(secretKeyBytes);  // Using Keys.hmacShaKeyFor for HS256 algorithm
 
-        // 2. Create Payload
-        String payload = Base64.getUrlEncoder().withoutPadding().encodeToString(
-                ("{\"sub\":\"testUser\",\"role\":\"USER\",\"exp\":" + (System.currentTimeMillis() / 1000 + 600) + "}").getBytes()
-        );
+        // Set token expiration (e.g., 1 minute from now)
+        long expirationTime = 60000; // 60,000 ms = 1 minute
 
-        // 3. Combine Header and Payload
-        String unsignedToken = header + "." + payload;
-
-        // 4. Generate Signature (Fake HMAC Implementation Without Dependencies)
-        String signature = simpleHmacSha256(unsignedToken, SECRET_KEY);
-
-        // 5. Combine All Parts of the JWT and return JWT token
-        return unsignedToken + "." + signature;
-
-    }
-
-    private static String simpleHmacSha256(String data, String key) {
-        StringBuilder sb = new StringBuilder();
-        // Simplistic "hashing" algorithm: XOR each character of data with the key
-        for (int i = 0; i < data.length(); i++) {
-            char hashedChar = (char) (data.charAt(i) ^ key.charAt(i % key.length()));
-            sb.append(hashedChar);
-        }
-
-        // Encode the result in Base64
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(sb.toString().getBytes());
+        // Create JWT token using claims and signing with the secure key
+        return Jwts.builder()
+                .claim("username", username) // Add username as a claim
+                .claim("password", password) // Add password as a claim (optional, not recommended in production)
+                .claim("iat", new Date()) // Set issued at (iat) claim
+                .claim("exp", new Date(System.currentTimeMillis() + expirationTime)) // Set expiration (exp) claim
+                .signWith(secretKey)  // Sign the token with the secure key
+                .compact();
     }
 }

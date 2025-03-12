@@ -1,7 +1,6 @@
 // controller/AdminController.java
 package com.example.bankSphere.controller;
 
-import com.example.bankSphere.dto.UserDto;
 import com.example.bankSphere.entity.Transaction;
 import com.example.bankSphere.entity.User;
 import com.example.bankSphere.service.AdminService;
@@ -9,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")

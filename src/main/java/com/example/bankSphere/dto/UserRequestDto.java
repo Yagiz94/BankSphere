@@ -1,13 +1,13 @@
 package com.example.bankSphere.dto;
 
-public class UserDto {
+public class UserRequestDto {
     private String username;
     private String email;
     private int role;
     private String phone;
     private String password;
 
-    public UserDto() {}
+    public UserRequestDto() {}
 
     public String getUsername() {
         return username;

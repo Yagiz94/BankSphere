@@ -1,7 +1,7 @@
 // service/UserService.java
 package com.example.bankSphere.service;
 
-import com.example.bankSphere.dto.UserDto;
+import com.example.bankSphere.dto.UserRequestDto;
 import com.example.bankSphere.entity.User;
 import com.example.bankSphere.enums.KYC_STATUS;
 import com.example.bankSphere.repository.UserLoggerRepository;
@@ -25,7 +25,7 @@ public class UserService {
     private UserLoggerRepository userLoggerRepository;
 
     // Register a new user
-    public User registerUser(UserDto userDto) {
+    public User registerUser(UserRequestDto userDto) {
 
         // Define a User with userDto data
         User user = new User();
