@@ -98,24 +98,19 @@ public class AuthController {
     // Login endpoint would typically validate credentials and return a JWT token.
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@RequestBody UserRequestDto userDto) {
-        try {
-            //TODO generateToken()
-            //TODO validate token
-            //TODO validate user login info
-            User user = userService.retrieveUserByName(userDto.getUsername());
-            if(user == null){
-                throw new UserNotFoundException("User not found!");
-            }
-            else if(!user.getPassword().equals(userDto.getPassword())){
-                throw new UserLoginCredentialsInvalidException("Invalid login credentials!");
-            }
-            else {
-                return ResponseEntity.ok(new UserResponse("Login successful!"));
-            }
 
-        } catch (Exception e) {
+        //Validate the login credentials
+        User user = userService.retrieveUserByName(userDto.getUsername());
+
+        //Check whether the user exists
+        if(user == null){ throw new UserNotFoundException("User not found!"); }
+
+        // Validate the password
+        else if(!user.getPassword().equals(userDto.getPassword())){
             throw new UserLoginCredentialsInvalidException("Invalid login credentials!");
         }
+        // If everything is valid
+        return ResponseEntity.ok(new UserResponse("Login successful!"));
     }
 
     // secure generator
