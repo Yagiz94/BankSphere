@@ -51,12 +51,16 @@ public class UserService {
     }
 
     private Boolean checkUserExists(User user) {
-        return retrieveUserByName(user.getUsername())!=null;
+        return retrieveUserById(user.getId()) != null;
     }
 
     // Retrieve a User by name
     public User retrieveUserByName(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public User retrieveUserById(Long id) {
+        return userRepository.findById(id).orElse(null);
     }
 
 }
