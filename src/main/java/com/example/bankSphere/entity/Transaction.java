@@ -15,14 +15,31 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionID;
 
+    @ManyToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
+    @Column(nullable = false)
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TRANSACTION_TYPE type; // e.g., "TRANSFER", "BILL_PAYMENT"
+
+    @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    // Status: SUCCESS, PENDING, FAILED, etc.
-    private String status;
+    @Column(nullable = false)
+    private String status; // Status: SUCCESS, PENDING, FAILED, etc.
+
+    public Transaction() {}
 
     // Getters and Setters
+
+    public Account getAccount() { return account; }
+
+    public void setAccount(Account account) { this.account = account; }
+
     public Long getTransactionID() {
         return transactionID;
     }
@@ -50,7 +67,6 @@ public class Transaction {
     public void setStatus(String status) {
         this.status = status;
     }
-
 
     public TRANSACTION_TYPE getType() {
         return type;

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 public class UserService {
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
     AccountService accountService;
 
     public void validateUserByIdForAccount(Long userId) {

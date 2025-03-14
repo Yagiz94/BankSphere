@@ -17,24 +17,27 @@ public class User {
 
     @Column(name = "username", nullable = false, unique = true)
     private String username;
+
     @Column(name = "email")
     private String email;
+
     @Column(name = "password", nullable = false)
     private String password;
+
     @Column(name = "phoneNumber", nullable = false, unique = true)
     private String phoneNumber;
+
     @Column(name = "role", nullable = false)
     private ROLE role;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "accounts")
     private List<Account> accounts;
 
     // KYC status: PENDING, VERIFIED, or REJECTED
     @Column(name = "kycStatus", nullable = false)
     private KYC_STATUS kycStatus;
 
-    public User() {
-    }
+    public User() {}
 
     // Getters and Setters
     public Long getId() {
@@ -97,14 +100,6 @@ public class User {
         return kycStatus;
     }
 
-    public StringBuilder showAccounts(List<Account> accounts) {
-        StringBuilder sb = new StringBuilder();
-        for (Account account : accounts) {
-            sb.append(account);
-        }
-        return sb;
-    }
-
     @Override
     public String toString() {
         return "\"User\":" + "{" +
@@ -115,5 +110,13 @@ public class User {
                 ", \n\"kycStatus\":" + kycStatus +
                 ", \n\"accounts\":[\n" + showAccounts(accounts) + "\n]" +
                 '}';
+    }
+
+    public StringBuilder showAccounts(List<Account> accounts) {
+        StringBuilder sb = new StringBuilder();
+        for (Account account : accounts) {
+            sb.append(account);
+        }
+        return sb;
     }
 }

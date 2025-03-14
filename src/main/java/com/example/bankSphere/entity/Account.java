@@ -12,24 +12,28 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long accountID;
+    private long accountId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false) // The owning side of the relationship
+    private User user;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "transactions")
     private List<Transaction> transactions;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "accountType", nullable = false)
     private ACCOUNT_TYPE accountType;
 
     @Column(name = "balance")
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     // Default constructor for JPA
-    public Account() {
-    }
+    public Account() {}
 
     // Getters and Setters
     public long getAccountId() {
-        return accountID;
+        return accountId;
     }
 
     public BigDecimal getBalance() {
@@ -58,11 +62,7 @@ public class Account {
 
     @Override
     public String toString() {
-        return "\"Account\":" + "{" +
-                "\n\"accountType\":" + accountType +
-                ", \n\"balance\":" + balance +
-                ", \n\"transactions\":[\n" + showTransactions(transactions) + "\n]" +
-                '}';
+        return "\"Account\":" + "{" + "\n\"accountType\":" + accountType + ", \n\"balance\":" + balance + ", \n\"transactions\":[\n" + showTransactions(transactions) + "\n]" + '}';
     }
 
     @Override
@@ -70,12 +70,12 @@ public class Account {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Account account = (Account) o;
-        return accountID == account.accountID;
+        return accountId == account.accountId;
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(accountID);
+        return Long.hashCode(accountId);
     }
 
     public StringBuilder showTransactions(List<Transaction> transactions) {
