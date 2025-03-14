@@ -8,7 +8,8 @@ public class UserModelDto {
     private String phone;
     private String password;
 
-    public UserModelDto() {}
+    public UserModelDto() {
+    }
 
     public String getUsername() {
         return username;

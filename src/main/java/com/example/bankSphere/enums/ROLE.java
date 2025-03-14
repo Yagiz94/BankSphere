@@ -16,6 +16,6 @@ public enum ROLE {
     }
 
     public void setValue(int roleValue) {
-        this.value=roleValue;
+        this.value = roleValue;
     }
 }

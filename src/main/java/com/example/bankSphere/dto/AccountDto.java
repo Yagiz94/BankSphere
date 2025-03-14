@@ -1,30 +1,23 @@
 package com.example.bankSphere.dto;
 
+import com.example.bankSphere.entity.Transaction;
+import com.example.bankSphere.enums.ACCOUNT_TYPE;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 public class AccountDto {
-    private Long id;
     private BigDecimal balance;
-    private UserModelDto user;
 
-    public AccountDto() {}
+    private ACCOUNT_TYPE accountType;
 
-    public AccountDto(Long id, BigDecimal balance, UserModelDto user) {
-        this.id = id;
-        this.balance = balance;
-        this.user = user;
+    private List<Transaction> transactions;
+
+    // Default constructor for JPA
+    public AccountDto() {
     }
 
     // Getters and Setters
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public BigDecimal getBalance() {
         return balance;
     }
@@ -33,11 +26,20 @@ public class AccountDto {
         this.balance = balance;
     }
 
-    public UserModelDto getUser() {
-        return user;
+    public ACCOUNT_TYPE getAccountType() {
+        return accountType;
     }
 
-    public void setUser(UserModelDto user) {
-        this.user = user;
+    public void setAccountType(ACCOUNT_TYPE accountType) {
+        this.accountType = accountType;
     }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
 }

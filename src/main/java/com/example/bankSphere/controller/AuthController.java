@@ -10,13 +10,11 @@ import com.example.bankSphere.exception.UserFieldsMissingException;
 import com.example.bankSphere.exception.UserLoginCredentialsInvalidException;
 import com.example.bankSphere.exception.UserNotFoundException;
 import com.example.bankSphere.service.AccountService;
+import com.example.bankSphere.service.AuthService;
 import com.example.bankSphere.service.UserLoggerService;
-
-import com.example.bankSphere.service.UserService;
 import com.mongodb.MongoSocketException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Key;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 @RestController
@@ -34,7 +34,7 @@ import java.util.*;
 public class AuthController {
 
     @Autowired
-    private UserService userService;
+    private AuthService userService;
 
     @Autowired
     private UserLoggerService userLoggerService;
@@ -44,7 +44,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody UserRequestDto userDto) {
-
 
         // check if the request body is missing
         if (userDto == null) {
@@ -59,30 +58,22 @@ public class AuthController {
 
         // register a new user with a new account and log the registry
         User user;
-        try{
+        try {
             user = userService.registerUser(userDto);
-        }
-        catch(RuntimeException e){
+        } catch (RuntimeException e) {
             throw new UserAlreadyExistsException("User already exists!");
         }
         try {
             userLoggerService.saveUserLogger(
-                new UserLogger(user.getUsername(), user.getEmail(), Instant.now().toString(), "New User"));
-        }
-        catch (MongoSocketException e){
+                    new UserLogger(user.getUsername(), user.getEmail(), Instant.now().toString(), "New User"));
+        } catch (MongoSocketException e) {
             System.out.println("Something went wrong with logging but user registration is successful");
-        }
-        try {
-            accountService.createAccountForUser(user);
-        }
-        catch (RuntimeException e){
-            return ResponseEntity.badRequest().body("Account creation has failed");
         }
 
         // successful registration responds a token value
         return ResponseEntity.ok("{\n" +
                 "\t\"message\": \"User registered successfully!\"" + "\n" +
-                "\t\"token\": \"" + generateToken(user.getUsername(),user.getPassword()) + "\"\n}");
+                "\t\"token\": \"" + generateToken(user.getUsername(), user.getPassword()) + "\"\n}");
 
     }
 
@@ -103,10 +94,12 @@ public class AuthController {
         User user = userService.retrieveUserByName(userDto.getUsername());
 
         //Check whether the user exists
-        if(user == null){ throw new UserNotFoundException("User not found!"); }
+        if (user == null) {
+            throw new UserNotFoundException("User not found!");
+        }
 
         // Validate the password
-        else if(!user.getPassword().equals(userDto.getPassword())){
+        else if (!user.getPassword().equals(userDto.getPassword())) {
             throw new UserLoginCredentialsInvalidException("Invalid login credentials!");
         }
         // If everything is valid
@@ -132,4 +125,5 @@ public class AuthController {
                 .signWith(secretKey)  // Sign the token with the secure key
                 .compact();
     }
+
 }

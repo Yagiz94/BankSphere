@@ -7,7 +7,8 @@ public class UserRequestDto {
     private String phone;
     private String password;
 
-    public UserRequestDto() {}
+    public UserRequestDto() {
+    }
 
     public String getUsername() {
         return username;
@@ -25,5 +26,7 @@ public class UserRequestDto {
         return phone;
     }
 
-    public int getRole() { return role; }
+    public int getRole() {
+        return role;
+    }
 }

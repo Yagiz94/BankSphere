@@ -20,12 +20,14 @@ public class UserLoggerController {
     public ResponseEntity<List<UserLogger>> getUserLoggers() {
         return ResponseEntity.ok(this.userLoggerRepository.findAll());
     }
+
     @PostMapping("/api/log/insert")
     public ResponseEntity<UserLogger> createUserLogger(@RequestBody UserLogger userLogger) {
         System.out.println("Adding a new user logger");
         UserLogger savedUserLogger = userLoggerRepository.save(userLogger);
         return ResponseEntity.ok(savedUserLogger);
     }
+
     @DeleteMapping("/api/user-logger/{id}")
     public ResponseEntity<Void> deleteUserLogger(@PathVariable String id) {
         System.out.println("Deleting user logger with id:" + id);

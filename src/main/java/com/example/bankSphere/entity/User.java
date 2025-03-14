@@ -5,6 +5,8 @@ import com.example.bankSphere.enums.KYC_STATUS;
 import com.example.bankSphere.enums.ROLE;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -21,23 +23,15 @@ public class User {
     private String password;
     @Column(name = "phoneNumber", nullable = false, unique = true)
     private String phoneNumber;
-
-    // For simplicity, using a string role; you could also use a separate Role entity
     @Column(name = "role", nullable = false)
     private ROLE role;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "accounts")
+    private List<Account> accounts;
 
     // KYC status: PENDING, VERIFIED, or REJECTED
     @Column(name = "kycStatus", nullable = false)
     private KYC_STATUS kycStatus;
-
-    public User(String username, String email, String password, String phoneNumber) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.kycStatus = KYC_STATUS.PENDING;
-        this.role = ROLE.PERSONAL_USER;
-    }
 
     public User() {
     }
@@ -87,14 +81,39 @@ public class User {
         this.role = ROLE.values()[roleValue];
     }
 
+    public void setKycStatus(int kycStatus) {
+        this.kycStatus = KYC_STATUS.values()[kycStatus];
+    }
 
-    public void setKycStatus(KYC_STATUS kycStatus) {
-        this.kycStatus = kycStatus;
+    public List<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
     }
 
     public KYC_STATUS getKycStatus() {
         return kycStatus;
     }
 
+    public StringBuilder showAccounts(List<Account> accounts) {
+        StringBuilder sb = new StringBuilder();
+        for (Account account : accounts) {
+            sb.append(account);
+        }
+        return sb;
+    }
 
+    @Override
+    public String toString() {
+        return "\"User\":" + "{" +
+                "\n\"username\":" + username +
+                ", \n\"email\":" + email +
+                ", \n\"phoneNumber\":" + phoneNumber +
+                ", \n\"role\":" + role +
+                ", \n\"kycStatus\":" + kycStatus +
+                ", \n\"accounts\":[\n" + showAccounts(accounts) + "\n]" +
+                '}';
+    }
 }

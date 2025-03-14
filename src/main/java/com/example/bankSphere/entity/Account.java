@@ -1,7 +1,10 @@
 package com.example.bankSphere.entity;
 
+import com.example.bankSphere.enums.ACCOUNT_TYPE;
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "accounts")
@@ -9,39 +12,24 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long AccountID;
+    private long accountID;
 
-    // Association to a User
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") // Assuming 'CustomerID' is the column name in the database
-    private User user;
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "transactions")
+    private List<Transaction> transactions;
+    @Column(name = "accountType", nullable = false)
+    private ACCOUNT_TYPE accountType;
 
+    @Column(name = "balance")
     private BigDecimal balance;
 
     // Default constructor for JPA
-    public Account() {}
-
-    // Constructor with parameters for easier creation
-    public Account(User user, BigDecimal balance) {
-        this.user = user;
-        this.balance = balance;
+    public Account() {
     }
 
     // Getters and Setters
-    public long getId() {
-        return AccountID;
-    }
-
-    public void setId(long id) {
-        this.AccountID = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public long getAccountId() {
+        return accountID;
     }
 
     public BigDecimal getBalance() {
@@ -52,9 +40,29 @@ public class Account {
         this.balance = balance;
     }
 
+    public void setAccountType(int accountType) {
+        this.accountType = ACCOUNT_TYPE.values()[accountType];
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public ACCOUNT_TYPE getAccountType() {
+        return accountType;
+    }
+
     @Override
     public String toString() {
-        return "Account{id=" + AccountID + ", user=" + user + ", balance=" + balance + "}";
+        return "\"Account\":" + "{" +
+                "\n\"accountType\":" + accountType +
+                ", \n\"balance\":" + balance +
+                ", \n\"transactions\":[\n" + showTransactions(transactions) + "\n]" +
+                '}';
     }
 
     @Override
@@ -62,11 +70,19 @@ public class Account {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Account account = (Account) o;
-        return AccountID == account.AccountID;
+        return accountID == account.accountID;
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(AccountID);
+        return Long.hashCode(accountID);
+    }
+
+    public StringBuilder showTransactions(List<Transaction> transactions) {
+        StringBuilder sb = new StringBuilder();
+        for (Transaction transaction : transactions) {
+            sb.append(transaction);
+        }
+        return sb;
     }
 }
