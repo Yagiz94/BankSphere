@@ -8,13 +8,22 @@ import java.util.List;
 
 public class AccountDto {
 
-    private Long userId; // Add userId to associate with the account
+    private Long id; // Add userId to associate with the account
+    private Long userId;
     private BigDecimal balance;
     private ACCOUNT_TYPE accountType;
-    private List<Transaction> transactions; // Can still be included if necessary
+    private List<TransactionDto> transactions; // Can still be included if necessary
 
     // Default constructor for JPA
     public AccountDto() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     // Getters and Setters
@@ -42,11 +51,11 @@ public class AccountDto {
         this.accountType = accountType;
     }
 
-    public List<Transaction> getTransactions() {
+    public List<TransactionDto> getTransactions() {
         return transactions;
     }
 
-    public void setTransactions(List<Transaction> transactions) {
+    public void setTransactions(List<TransactionDto> transactions) {
         this.transactions = transactions;
     }
 }

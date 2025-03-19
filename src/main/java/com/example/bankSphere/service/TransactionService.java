@@ -1,6 +1,7 @@
 // service/TransactionService.java
 package com.example.bankSphere.service;
 
+import com.example.bankSphere.dto.TransactionDto;
 import com.example.bankSphere.entity.Account;
 import com.example.bankSphere.entity.Transaction;
 import com.example.bankSphere.exception.InsufficientFundException;
@@ -12,6 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -27,6 +32,7 @@ public class TransactionService {
     private RabbitTemplate rabbitTemplate;  // Used for event-driven messaging
     */
 
+    @Transactional
     public Transaction withdraw(Transaction transaction) {
         // check balance for a transfer
         Account account = transaction.getAccount();
@@ -73,5 +79,10 @@ public class TransactionService {
 
         // Return the updated transaction
         return transaction;
+    }
+
+    public List<Transaction> getAllTransactions(Long accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow();
+        return account.getTransactions();
     }
 }

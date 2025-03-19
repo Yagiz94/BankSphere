@@ -33,7 +33,7 @@ public class Account {
     public Account() {}
 
     // Getters and Setters
-    public long getAccountId() {
+    public long getId() {
         return accountId;
     }
 
@@ -47,6 +47,10 @@ public class Account {
 
     public ACCOUNT_TYPE getAccountType() {
         return accountType;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     // Method to set accountType based on integer value

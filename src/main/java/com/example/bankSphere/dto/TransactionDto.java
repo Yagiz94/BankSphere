@@ -9,6 +9,7 @@ public class TransactionDto {
     private BigDecimal amount;
     private TRANSACTION_TYPE type; // e.g., "TRANSFER", "BILL_PAYMENT"
     private LocalDateTime timestamp;
+    private AccountDto account;
 
     // Status: SUCCESS, PENDING, FAILED, etc.
     private String status;
@@ -44,5 +45,9 @@ public class TransactionDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setAccount(AccountDto accountDto) {
+        this.account = accountDto;
     }
 }

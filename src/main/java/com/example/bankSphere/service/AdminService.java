@@ -29,6 +29,7 @@ public class AdminService {
     private AccountRepository accountRepository;
 
     public List<Transaction> getAllTransactions() {
+
         return transactionRepository.findAll();
     }
 
@@ -45,13 +46,6 @@ public class AdminService {
                 })
                 .collect(Collectors.toList());
     }
-
-//    public List<AccountDto> getAllAccountDtos() {
-//        List<Account> accounts = accountRepository.findAll();
-//        return accounts.stream()
-//                .map(AccountMapper::toDto)
-//                .collect(Collectors.toList());
-//    }
 
     // Additional administrative functions (user management, logs, etc.)
     public void deleteUser(Long userId) {

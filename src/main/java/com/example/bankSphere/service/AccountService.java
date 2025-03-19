@@ -22,7 +22,12 @@ public class AccountService {
     @Autowired
     private TransactionService transactionService;
 
-    // Method to retrieve account by userId
+    // Method to retrieve account by id and userId
+    public Account getAccountById(Long accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+    }
+
     public Account getAccountByUserId(Long userId) {
         // Find the user by ID
         User user = userRepository.findById(userId)

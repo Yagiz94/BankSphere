@@ -21,4 +21,8 @@ public class UserService {
     public Account createAccount(Account account) {
         return accountService.createAccount(account);
     }
+
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
 }

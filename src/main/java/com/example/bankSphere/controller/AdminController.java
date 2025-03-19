@@ -2,14 +2,15 @@
 package com.example.bankSphere.controller;
 
 import com.example.bankSphere.dto.AccountDto;
+import com.example.bankSphere.dto.TransactionDto;
 import com.example.bankSphere.dto.UserResponseDto;
 import com.example.bankSphere.entity.Account;
 import com.example.bankSphere.entity.Transaction;
 import com.example.bankSphere.enums.TRANSACTION_TYPE;
-import com.example.bankSphere.repository.AccountRepository;
-import com.example.bankSphere.repository.UserRepository;
 import com.example.bankSphere.service.AccountService;
 import com.example.bankSphere.service.AdminService;
+import com.example.bankSphere.service.TransactionService;
+import com.example.bankSphere.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,18 +29,13 @@ public class AdminController {
     @Autowired
     private AccountService accountService;
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+    @Autowired
+    private TransactionService transactionService;
 
     @GetMapping("/users")
     public List<UserResponseDto> getAllUsers() {
         return adminService.getAllUsers();
-    }
-
-    @GetMapping("/transactions")
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
-        System.out.println("Loading all transactions...");
-        List<Transaction> transactions = adminService.getAllTransactions();
-        return ResponseEntity.ok(transactions);
     }
 
     @DeleteMapping("/users/{id}")
@@ -49,32 +45,18 @@ public class AdminController {
         return ResponseEntity.ok("User deleted successfully");
     }
 
-    @DeleteMapping("/accounts/{id}")
-    public ResponseEntity<String> deleteAccount(@PathVariable Long id) {
-        System.out.println("Deleting account with id: " + id);
-        adminService.deleteAccount(id);
-        return ResponseEntity.ok("Account deleted successfully");
-    }
-
-    @DeleteMapping("/transactions/{id}")
-    public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
-        System.out.println("Deleting user with id: " + id);
-        adminService.deleteTransaction(id);
-        return ResponseEntity.ok("User deleted successfully");
-    }
-
     @PostMapping("/{userId}/account")
-    public ResponseEntity<String> createAccount(@PathVariable Long userId, @RequestBody Account accountDto) {
+    public ResponseEntity<String> createAccount(@PathVariable Long userId, @RequestBody Account account) {
         try {
             // Ensure the user ID is set in the AccountDto
-            accountDto.setUserById(userId, userRepository);
+            account.setUserById(userId, userService.getUserRepository());
 
             // Create the account (this will save the account in the database)
-            Account createdAccount = accountService.createAccount(accountDto);
+            Account createdAccount = accountService.createAccount(account);
 
             // Check if balance is provided in the request
-            if (accountDto.getBalance() != null && accountDto.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal initialDepositValue = accountDto.getBalance();  // Example initial deposit amount
+            if (account.getBalance() != null && account.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal initialDepositValue = account.getBalance();  // Example initial deposit amount
 
                 // Create a new transaction for the deposit
                 Transaction depositTransaction = new Transaction();
@@ -100,5 +82,41 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/accounts/{id}/transactions")
+    public ResponseEntity<AccountDto> getAllTransactions(@PathVariable Long id) {
+        List<Transaction> transactions = transactionService.getAllTransactions(id);
+        AccountDto accountDto = new AccountDto();
 
+        List<TransactionDto> transactionDtos = transactions.stream().map(transaction -> {
+            TransactionDto transactionDto = new TransactionDto();
+            transactionDto.setAmount(transaction.getAmount());
+            transactionDto.setType(transaction.getType().getValue());
+            transactionDto.setStatus(transaction.getStatus());
+            transactionDto.setTimestamp(transaction.getTimestamp());
+            transactionDto.setAccount(accountDto);
+            return transactionDto;
+        }).toList();
+        accountDto.setTransactions(transactionDtos);
+        accountDto.setUserId(accountService.getAccountById(id).getUser().getId());
+        accountDto.setBalance(accountService.getAccountById(id).getBalance());
+        accountDto.setAccountType(accountService.getAccountById(id).getAccountType());
+        accountDto.setId(id);
+
+       return ResponseEntity.ok(accountDto);
+
+    }
+
+    @DeleteMapping("/accounts/{id}")
+    public ResponseEntity<String> deleteAccount(@PathVariable Long id) {
+        System.out.println("Deleting account with id: " + id);
+        adminService.deleteAccount(id);
+        return ResponseEntity.ok("Account deleted successfully");
+    }
+
+    @DeleteMapping("/transactions/{id}")
+    public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
+        System.out.println("Deleting user with id: " + id);
+        adminService.deleteTransaction(id);
+        return ResponseEntity.ok("User deleted successfully");
+    }
 }
