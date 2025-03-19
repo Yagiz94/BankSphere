@@ -64,7 +64,7 @@ public class AdminController {
     }
 
     @PostMapping("/{userId}/account")
-    public ResponseEntity<Account> createAccount(@PathVariable Long userId, @RequestBody Account accountDto) {
+    public ResponseEntity<String> createAccount(@PathVariable Long userId, @RequestBody Account accountDto) {
         try {
             // Ensure the user ID is set in the AccountDto
             accountDto.setUserById(userId, userRepository);
@@ -72,24 +72,26 @@ public class AdminController {
             // Create the account (this will save the account in the database)
             Account createdAccount = accountService.createAccount(accountDto);
 
-            // Initial deposit amount (e.g., $100)
-            BigDecimal initialDeposit = new BigDecimal("1000.00");  // Example initial deposit amount
+            // Check if balance is provided in the request
+            if (accountDto.getBalance() != null && accountDto.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal initialDepositValue = accountDto.getBalance();  // Example initial deposit amount
 
-            // Create a new transaction for the deposit
-            Transaction depositTransaction = new Transaction();
-            depositTransaction.setAmount(initialDeposit);
-            depositTransaction.setType(TRANSACTION_TYPE.Deposit.getValue());  // Set transaction type as Deposit
-            depositTransaction.setStatus("SUCCESS");  // Set status as SUCCESS
-            depositTransaction.setTimestamp(LocalDateTime.now());  // Use current timestamp directly
+                // Create a new transaction for the deposit
+                Transaction depositTransaction = new Transaction();
+                depositTransaction.setAmount(initialDepositValue);
+                depositTransaction.setType(TRANSACTION_TYPE.Deposit.getValue());  // Set transaction type as Deposit
+                depositTransaction.setStatus("SUCCESS");  // Set status as SUCCESS
+                depositTransaction.setTimestamp(LocalDateTime.now());  // Use current timestamp directly
 
-            // Set the account for the transaction to ensure account_id is populated
-            depositTransaction.setAccount(createdAccount);  // Associate the transaction with the created account
+                // Set the account for the transaction to ensure account_id is populated
+                depositTransaction.setAccount(createdAccount);  // Associate the transaction with the created account
 
-            // Create and save the deposit transaction
-            accountService.deposit(depositTransaction, createdAccount);
+                // Create and save the deposit transaction
+                accountService.deposit(depositTransaction);
+            }
 
             // Return the created account with the initial deposit
-            return ResponseEntity.ok(createdAccount);
+            return ResponseEntity.ok("A new " + createdAccount.getAccountType() + " account has been created successfully.");
 
         } catch (Exception e) {
             // Log the error and return a generic error response without a message

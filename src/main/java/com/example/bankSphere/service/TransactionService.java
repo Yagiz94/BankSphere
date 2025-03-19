@@ -27,8 +27,9 @@ public class TransactionService {
     private RabbitTemplate rabbitTemplate;  // Used for event-driven messaging
     */
 
-    public Transaction withdraw(Transaction transaction, Account account) {
+    public Transaction withdraw(Transaction transaction) {
         // check balance for a transfer
+        Account account = transaction.getAccount();
         if (account.getBalance().compareTo(transaction.getAmount()) < 0) {
             throw new InsufficientFundException("Insufficient balance amount to withdraw from account");
         }
@@ -48,8 +49,9 @@ public class TransactionService {
     }
 
     @Transactional
-    public Transaction deposit(Transaction transaction, Account account) {
+    public Transaction deposit(Transaction transaction) {
         // Check if deposit amount is positive
+        Account account = transaction.getAccount();
         if (transaction.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Deposit amount must be greater than zero.");
         }

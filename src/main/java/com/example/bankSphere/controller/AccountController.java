@@ -69,7 +69,7 @@ public class AccountController {
 
         try {
             // Process the withdrawal by calling the service method
-            accountService.withdraw(transaction, account);
+            accountService.withdraw(transaction);
 
             // Return the updated account information after withdrawal
             return ResponseEntity.ok("Withdraw operation is successful");
@@ -112,7 +112,7 @@ public class AccountController {
 
         try {
             // Perform the deposit
-            accountService.deposit(transaction, account);
+            accountService.deposit(transaction);
 
             // Return the updated account
             return ResponseEntity.ok("Deposit operation is successful");

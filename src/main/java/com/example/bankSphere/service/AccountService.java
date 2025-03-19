@@ -42,11 +42,11 @@ public class AccountService {
                 .orElseThrow(() -> new UserAccountNotFoundException("Account not found for processing current transaction."));
     }
 
-    public Transaction withdraw(Transaction transaction, Account account) {
-        return transactionService.withdraw(transaction, account);
+    public Transaction withdraw(Transaction transaction) {
+        return transactionService.withdraw(transaction);
     }
 
-    public Transaction deposit(Transaction transaction, Account account) {
-        return transactionService.deposit(transaction, account);
+    public Transaction deposit(Transaction transaction) {
+        return transactionService.deposit(transaction);
     }
 }
