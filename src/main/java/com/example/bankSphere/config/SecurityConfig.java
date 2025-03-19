@@ -61,13 +61,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**").permitAll() // Allow all requests to /api/test/** paths
-                        .requestMatchers("/actuator/**").permitAll() // Explicitly allow access to Actuator endpoints
-                        .anyRequest().authenticated()               // Require authentication for all other requests
+                        .requestMatchers("/api/**").permitAll()  // Allow all routes under /api/**
+                        .anyRequest().permitAll()  // Allow any other request to be accessed without authentication
                 )
-                .csrf(AbstractHttpConfigurer::disable); // Disable CSRF for APIs
-        // Add the JWT filter to the filter chain
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable)  // Disable CSRF for APIs (ensure this is done properly)
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // JWT Filter (remove if not needed)
         return http.build();
     }
 }

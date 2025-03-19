@@ -1,6 +1,7 @@
 package com.example.bankSphere.entity;
 
 import com.example.bankSphere.enums.ACCOUNT_TYPE;
+import com.example.bankSphere.repository.UserRepository;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -44,8 +45,23 @@ public class Account {
         this.balance = balance;
     }
 
+    public ACCOUNT_TYPE getAccountType() {
+        return accountType;
+    }
+
+    // Method to set accountType based on integer value
     public void setAccountType(int accountType) {
-        this.accountType = ACCOUNT_TYPE.values()[accountType];
+        this.accountType = ACCOUNT_TYPE.values()[accountType];  // Set accountType based on enum index
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    // New method to set the user by user ID
+    public void setUserById(Long userId, UserRepository userRepository) {
+        this.user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
 
     public List<Transaction> getTransactions() {
@@ -56,13 +72,11 @@ public class Account {
         this.transactions = transactions;
     }
 
-    public ACCOUNT_TYPE getAccountType() {
-        return accountType;
-    }
-
     @Override
     public String toString() {
-        return "\"Account\":" + "{" + "\n\"accountType\":" + accountType + ", \n\"balance\":" + balance + ", \n\"transactions\":[\n" + showTransactions(transactions) + "\n]" + '}';
+        return "\"Account\":{" +
+                "\n\"accountType\": \"" + accountType + "\", \n\"balance\": " + balance + ", \n\"transactions\":[" +
+                showTransactions(transactions) + "\n]" + '}';
     }
 
     @Override
@@ -81,7 +95,11 @@ public class Account {
     public StringBuilder showTransactions(List<Transaction> transactions) {
         StringBuilder sb = new StringBuilder();
         for (Transaction transaction : transactions) {
-            sb.append(transaction);
+            sb.append(transaction).append(", ");
+        }
+        // Remove the trailing comma and space if there are transactions
+        if (sb.length() > 0) {
+            sb.delete(sb.length() - 2, sb.length());
         }
         return sb;
     }

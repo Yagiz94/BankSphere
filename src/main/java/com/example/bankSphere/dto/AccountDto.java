@@ -7,17 +7,25 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class AccountDto {
+
+    private Long userId; // Add userId to associate with the account
     private BigDecimal balance;
-
     private ACCOUNT_TYPE accountType;
-
-    private List<Transaction> transactions;
+    private List<Transaction> transactions; // Can still be included if necessary
 
     // Default constructor for JPA
     public AccountDto() {
     }
 
     // Getters and Setters
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public BigDecimal getBalance() {
         return balance;
     }
@@ -41,5 +49,4 @@ public class AccountDto {
     public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
     }
-
 }
