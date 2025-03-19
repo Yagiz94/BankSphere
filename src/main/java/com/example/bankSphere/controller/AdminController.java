@@ -35,11 +35,6 @@ public class AdminController {
         return adminService.getAllUsers();
     }
 
-//    @GetMapping("/accounts")
-//    public List<AccountDto> getAllAccounts() {
-//        return adminService.getAllAccountDtos();
-//    }
-
     @GetMapping("/transactions")
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         System.out.println("Loading all transactions...");
