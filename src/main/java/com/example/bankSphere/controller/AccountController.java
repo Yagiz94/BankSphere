@@ -122,16 +122,4 @@ public class AccountController {
             return new ResponseEntity<>("Error processing the deposit.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
-    // Check if the timestamp is in a valid date format (ISO-8601)
-    private boolean isValidDate(String date) {
-        try {
-            // Try to parse the date
-            java.time.LocalDateTime.parse(date);
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
 }
