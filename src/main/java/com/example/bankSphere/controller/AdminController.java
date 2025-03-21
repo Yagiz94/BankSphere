@@ -6,7 +6,6 @@ import com.example.bankSphere.dto.TransactionDto;
 import com.example.bankSphere.dto.UserResponseDto;
 import com.example.bankSphere.entity.Account;
 import com.example.bankSphere.entity.Transaction;
-import com.example.bankSphere.enums.TRANSACTION_TYPE;
 import com.example.bankSphere.service.AccountService;
 import com.example.bankSphere.service.AdminService;
 import com.example.bankSphere.service.TransactionService;
@@ -16,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -54,24 +51,6 @@ public class AdminController {
             // Create the account (this will save the account in the database)
             Account createdAccount = accountService.createAccount(account);
 
-            // Check if balance is provided in the request
-            if (account.getBalance() != null && account.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal initialDepositValue = account.getBalance();  // Example initial deposit amount
-
-                // Create a new transaction for the deposit
-                Transaction depositTransaction = new Transaction();
-                depositTransaction.setAmount(initialDepositValue);
-                depositTransaction.setType(TRANSACTION_TYPE.Deposit.getValue());  // Set transaction type as Deposit
-                depositTransaction.setStatus("SUCCESS");  // Set status as SUCCESS
-                depositTransaction.setTimestamp(LocalDateTime.now());  // Use current timestamp directly
-
-                // Set the account for the transaction to ensure account_id is populated
-                depositTransaction.setAccount(createdAccount);  // Associate the transaction with the created account
-
-                // Create and save the deposit transaction
-                accountService.deposit(depositTransaction);
-            }
-
             // Return the created account with the initial deposit
             return ResponseEntity.ok("A new " + createdAccount.getAccountType() + " account has been created successfully.");
 
@@ -100,9 +79,9 @@ public class AdminController {
         accountDto.setUserId(accountService.getAccountById(id).getUser().getId());
         accountDto.setBalance(accountService.getAccountById(id).getBalance());
         accountDto.setAccountType(accountService.getAccountById(id).getAccountType());
-        accountDto.setId(id);
+        accountDto.setAccountId(id);
 
-       return ResponseEntity.ok(accountDto);
+        return ResponseEntity.ok(accountDto);
 
     }
 
