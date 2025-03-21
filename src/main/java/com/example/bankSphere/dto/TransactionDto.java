@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class TransactionDto {
+
     private BigDecimal amount;
     private TRANSACTION_TYPE type; // e.g., "TRANSFER", "BILL_PAYMENT"
     private LocalDateTime timestamp;
@@ -15,6 +16,7 @@ public class TransactionDto {
     private String status;
 
     // Getters and Setters
+
     public BigDecimal getAmount() {
         return amount;
     }

@@ -33,7 +33,7 @@ public class Account {
     public Account() {}
 
     // Getters and Setters
-    public long getId() {
+    public Long getId() {
         return accountId;
     }
 

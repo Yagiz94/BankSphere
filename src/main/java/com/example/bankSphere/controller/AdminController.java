@@ -61,29 +61,15 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/accounts/{id}/transactions")
-    public ResponseEntity<AccountDto> getAllTransactions(@PathVariable Long id) {
-        List<Transaction> transactions = transactionService.getAllTransactions(id);
-        AccountDto accountDto = new AccountDto();
-
-        List<TransactionDto> transactionDtos = transactions.stream().map(transaction -> {
-            TransactionDto transactionDto = new TransactionDto();
-            transactionDto.setAmount(transaction.getAmount());
-            transactionDto.setType(transaction.getType().getValue());
-            transactionDto.setStatus(transaction.getStatus());
-            transactionDto.setTimestamp(transaction.getTimestamp());
-            transactionDto.setAccount(accountDto);
-            return transactionDto;
-        }).toList();
-        accountDto.setTransactions(transactionDtos);
-        accountDto.setUserId(accountService.getAccountById(id).getUser().getId());
-        accountDto.setBalance(accountService.getAccountById(id).getBalance());
-        accountDto.setAccountType(accountService.getAccountById(id).getAccountType());
-        accountDto.setAccountId(id);
-
-        return ResponseEntity.ok(accountDto);
-
-    }
+//    @GetMapping("/accounts/{id}/transactions")
+//    public ResponseEntity<?> getAccountTransactions(@PathVariable Long id) {
+//        try {
+//            // Retrieve all transactions associated with the account
+//            return ResponseEntity.ok(accountService.getAllTransactions(id));
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
     @DeleteMapping("/accounts/{id}")
     public ResponseEntity<String> deleteAccount(@PathVariable Long id) {
