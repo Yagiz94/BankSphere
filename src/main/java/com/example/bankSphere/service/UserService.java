@@ -1,10 +1,14 @@
 package com.example.bankSphere.service;
 
-import com.example.bankSphere.entity.Account;
+import com.example.bankSphere.dto.AccountDto;
+import com.example.bankSphere.entity.User;
 import com.example.bankSphere.exception.UserNotFoundException;
 import com.example.bankSphere.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -14,15 +18,22 @@ public class UserService {
     @Autowired
     AccountService accountService;
 
-    public void validateUserByIdForAccount(Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User can't be validated during account creation process"));
-    }
-
-    public Account createAccount(Account account) {
-        return accountService.createAccount(account);
-    }
-
     public UserRepository getUserRepository() {
         return userRepository;
+    }
+
+    public List<AccountDto> getUserAccounts(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.getAccounts().stream()
+                .map(account -> {
+                    AccountDto accountDto = new AccountDto();
+                    accountDto.setAccountId(account.getId());
+                    accountDto.setUserId(userId);
+                    accountDto.setBalance(account.getBalance());
+                    accountDto.setAccountType(account.getAccountType());
+                    return accountDto;
+                })
+                .collect(Collectors.toList());
     }
 }

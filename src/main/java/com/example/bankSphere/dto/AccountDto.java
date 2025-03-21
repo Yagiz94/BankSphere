@@ -8,7 +8,7 @@ import java.util.List;
 
 public class AccountDto {
 
-    private Long id; // Add userId to associate with the account
+    private Long accountId; // Add userId to associate with the account
     private Long userId;
     private BigDecimal balance;
     private ACCOUNT_TYPE accountType;
@@ -18,12 +18,12 @@ public class AccountDto {
     public AccountDto() {
     }
 
-    public Long getId() {
-        return id;
+    public Long getAccountId() {
+        return accountId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setAccountId(Long id) {
+        this.accountId = id;
     }
 
     // Getters and Setters

@@ -42,6 +42,23 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    public void deleteAccount(Long userId, Long accountId) {
+        // Find the user by ID
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User id not found"));
+
+        // Find the account associated with the user
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account with given id not found"));
+
+        // Check if the account belongs to the user
+        if (account.getUser().getId().equals(userId)) {
+            accountRepository.delete(account);
+        } else {
+            throw new RuntimeException("Account deletion failed.");
+        }
+    }
+
     public Account retrieveAccountByIdForTransaction(Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new UserAccountNotFoundException("Account not found for processing current transaction."));
