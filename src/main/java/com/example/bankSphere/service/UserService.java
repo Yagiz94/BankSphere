@@ -37,7 +37,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public User verifyUserForTransaction(Long userId) {
+    public User retrieveUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }

@@ -2,7 +2,7 @@ package com.example.bankSphere.controller;
 
 import com.example.bankSphere.dto.AccountDto;
 import com.example.bankSphere.entity.Account;
-import com.example.bankSphere.exception.UserNotFoundException;
+import com.example.bankSphere.entity.User;
 import com.example.bankSphere.service.AccountService;
 import com.example.bankSphere.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +43,11 @@ public class UserController {
     // ResponseEntity<?> returns List<AccountDto> if the list is not empty, otherwise it returns "list is empty" message
     @GetMapping("/{userId}/accounts")
     public ResponseEntity<?> getUserAccounts(@PathVariable Long userId) {
+        User user = userService.retrieveUser(userId);
+        if (user == null) {
+            return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
+        }
+
         try {
             // Retrieve all accounts associated with the user
             List<AccountDto> accounts = userService.getUserAccounts(userId);
@@ -50,7 +55,7 @@ public class UserController {
                 return ResponseEntity.ok(Map.of("Message", "No accounts found for the user."));
             }
             return ResponseEntity.ok(accounts);
-        } catch (RuntimeException e ) {
+        } catch (RuntimeException e) {
             // If user is not found, return 404 Not Found
             return ResponseEntity.notFound().build();
         }

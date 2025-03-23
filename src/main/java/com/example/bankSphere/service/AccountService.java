@@ -1,16 +1,19 @@
 // service/AccountService.java
 package com.example.bankSphere.service;
 
+import com.example.bankSphere.dto.TransactionDto;
 import com.example.bankSphere.entity.Account;
 import com.example.bankSphere.entity.Transaction;
 import com.example.bankSphere.entity.User;
 import com.example.bankSphere.exception.UserAccountNotFoundException;
+import com.example.bankSphere.exception.UserNotFoundException;
 import com.example.bankSphere.repository.AccountRepository;
 import com.example.bankSphere.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -51,7 +54,7 @@ public class AccountService {
 
         // Find the account associated with the user
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account with given id not found"));
+                .orElseThrow(() -> new RuntimeException("Account not found"));
 
         // Check if the account belongs to the user
         if (account.getUser().getId().equals(userId)) {
@@ -61,33 +64,41 @@ public class AccountService {
         }
     }
 
-    public List<Transaction> getAllTransactions(Long userId, Long accountId) {
+    public List<TransactionDto> getAllTransactions(Long userId, Long accountId) {
         // Find the user by ID
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User id not found"));
-
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         // Find the account associated with the user
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account with given id not found"));
+                .orElseThrow(() -> new UserAccountNotFoundException("Account not found"));
 
         // Check if the account belongs to the user
         if (account.getUser().getId().equals(userId)) {
-            return account.getTransactions();
+            return transactionService.getAllTransactions(account.getId()).stream()
+                    .map(transaction -> {
+                        TransactionDto transactionDto = new TransactionDto();
+                        transactionDto.setType(transaction.getType().getValue());
+                        transactionDto.setTimestamp(transaction.getTimestamp());
+                        transactionDto.setAmount(transaction.getAmount());
+                        transactionDto.setStatus(transaction.getStatus());
+                        return transactionDto;
+                    })
+                    .collect(Collectors.toList());
         } else {
-            throw new RuntimeException("Account not found for the given user");
+            throw new UserAccountNotFoundException("Account not found for the user.");
         }
     }
 
-    public Account retrieveAccountByIdForTransaction(Long accountId) {
+    public Account retrieveAccount(Long accountId) {
         return accountRepository.findById(accountId)
-                .orElseThrow(() -> new UserAccountNotFoundException("Account not found for processing current transaction."));
+                .orElseThrow(() -> new UserAccountNotFoundException("Account not found."));
     }
 
-    public Transaction withdraw(Transaction transaction) {
-        return transactionService.withdraw(transaction);
+    public void withdraw(Transaction transaction) {
+        transactionService.withdraw(transaction);
     }
 
-    public Transaction deposit(Transaction transaction) {
-        return transactionService.deposit(transaction);
+    public void deposit(Transaction transaction) {
+        transactionService.deposit(transaction);
     }
 }

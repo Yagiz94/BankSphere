@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -25,43 +27,51 @@ public class AccountController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/user/{userId}/account")
-    public ResponseEntity<Account> getAccountDetails(@PathVariable Long userId) {
-        try {
-            // Retrieve account details by userId
-            Account account = accountService.getAccountByUserId(userId);
-            return ResponseEntity.ok(account);
-        } catch (RuntimeException e) {
-            // If account or user is not found, return 404 Not Found
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @GetMapping("/user/{userId}/account/{accountId}/transactions")
     public ResponseEntity<?> getAccountTransactions(@PathVariable Long userId, @PathVariable Long accountId) {
-        try {
-            // Retrieve all transactions associated with the account that belongs to the user
-            return ResponseEntity.ok(accountService.getAllTransactions(userId, accountId));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+        User user = userService.retrieveUser(userId);
+        if (user == null) {
+            return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
+        }
+        Account account = accountService.retrieveAccount(accountId);
+        if (account == null) {
+            return new ResponseEntity<>("Account not found.", HttpStatus.NOT_FOUND);
+        }
+
+        if (account.getUser().getId().equals(userId)) {
+            try {
+                List<TransactionDto> transactions = accountService.getAllTransactions(userId, accountId);
+                // Retrieve all transactions associated with the account that belongs to the user
+                if (transactions.isEmpty()) {
+                    return ResponseEntity.ok(Map.of("Message", "No transactions found for the account."));
+                } else {
+                    return ResponseEntity.ok(transactions);
+                }
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+                return new ResponseEntity<>("Error processing the deposit.", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Transaction operation failed", HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("/user/{userId}/account/{accountId}/transaction/deposit")
-    public ResponseEntity<?> deposit(@RequestBody TransactionDto transactionDto, @PathVariable Long userId, @PathVariable Long accountId) {
+    public ResponseEntity<?> deposit(@RequestBody TransactionDto transactionDto, @PathVariable Long
+            userId, @PathVariable Long accountId) {
 
         // Validate and retrieve account objects for processing transaction
-        User user = userService.verifyUserForTransaction(userId);
+        User user = userService.retrieveUser(userId);
         if (user == null) {
             return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
         }
-        Account account = accountService.retrieveAccountByIdForTransaction(accountId);
+        Account account = accountService.retrieveAccount(accountId);
         if (account == null) {
             return new ResponseEntity<>("Account not found.", HttpStatus.NOT_FOUND);
         }
 
         // Check if the user & account exist and account belongs to the user
-        if (user.getId().equals(userId) && account.getId().equals(accountId) && account.getUser().getId().equals(userId)) {
+        if (account.getUser().getId().equals(userId)) {
             // Simple checks
             if (transactionDto.getAmount() == null || transactionDto.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
                 return new ResponseEntity<>("Amount must be greater than zero.", HttpStatus.BAD_REQUEST);
@@ -97,19 +107,20 @@ public class AccountController {
     }
 
     @PostMapping("/user/{userId}/account/{accountId}/transaction/withdraw")
-    public ResponseEntity<?> withdraw(@RequestBody TransactionDto transactionDto, @PathVariable Long userId, @PathVariable Long accountId) {
+    public ResponseEntity<?> withdraw(@RequestBody TransactionDto transactionDto, @PathVariable Long
+            userId, @PathVariable Long accountId) {
 
-        User user = userService.verifyUserForTransaction(userId);
+        User user = userService.retrieveUser(userId);
         if (user == null) {
             return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
         }
-        Account account = accountService.retrieveAccountByIdForTransaction(accountId);
+        Account account = accountService.retrieveAccount(accountId);
         if (account == null) {
             return new ResponseEntity<>("Account not found.", HttpStatus.NOT_FOUND);
         }
 
         // Check if the user & account exist and account belongs to the user
-        if (user.getId().equals(userId) && account.getId().equals(accountId) && account.getUser().getId().equals(userId)) {
+        if (account.getUser().getId().equals(userId)) {
             // Simple validation checks for the withdrawal request
             if (transactionDto.getAmount() == null || transactionDto.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
                 return new ResponseEntity<>("Amount must be greater than zero.", HttpStatus.BAD_REQUEST);
