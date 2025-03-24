@@ -1,9 +1,8 @@
 package com.example.bankSphere.entity;
 
-import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
-
-import java.util.Date;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 @Entity
 public class UserSecretKey {
@@ -14,11 +13,7 @@ public class UserSecretKey {
     private String username;
     private String secretKey; // Store the key as a base64 encoded string
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expirationTime;
-
     // Getters and Setters
-
     public Long getId() {
         return Id;
     }
@@ -41,13 +36,5 @@ public class UserSecretKey {
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
-    }
-
-    public Date getExpirationTime() {
-        return expirationTime;
-    }
-
-    public void setExpirationTime(Date expirationTime) {
-        this.expirationTime = expirationTime;
     }
 }

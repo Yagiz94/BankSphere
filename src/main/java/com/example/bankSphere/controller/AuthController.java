@@ -5,15 +5,11 @@ import com.example.bankSphere.dto.UserRequestDto;
 import com.example.bankSphere.entity.User;
 import com.example.bankSphere.entity.UserLogger;
 import com.example.bankSphere.entity.UserResponse;
-import com.example.bankSphere.entity.UserSecretKey;
 import com.example.bankSphere.exception.UserAlreadyExistsException;
 import com.example.bankSphere.exception.UserFieldsMissingException;
 import com.example.bankSphere.exception.UserLoginCredentialsInvalidException;
 import com.example.bankSphere.exception.UserNotFoundException;
-import com.example.bankSphere.service.AccountService;
-import com.example.bankSphere.service.AuthService;
-import com.example.bankSphere.service.UserLoggerService;
-import com.example.bankSphere.service.UserSecretKeyService;
+import com.example.bankSphere.service.*;
 import com.mongodb.MongoSocketException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -48,6 +44,9 @@ public class AuthController {
     @Autowired
     private UserSecretKeyService userSecretKeyService; // Inject the service
 
+    @Autowired
+    private JwtRedisService jwtRedisService; // Inject the service
+
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody UserRequestDto userDto) {
 
@@ -77,10 +76,14 @@ public class AuthController {
         }
 
         // successful registration responds a token value
+        String jwtToken = generateToken(user.getUsername());
+        // save genereated token on redis
+        // token expiration time is 0 (infinite) for now
+        jwtRedisService.saveToken(jwtToken, user.getUsername(), 0);
+
         return ResponseEntity.ok("{\n" +
                 "\t\"message\": \"User registered successfully!\"" + "\n" +
-                "\t\"token\": \"" + generateToken(user.getUsername()) + "\"\n}");
-
+                "\t\"token\": \"" + jwtToken + "\"\n}");
     }
 
     // check missing JSON attributes (fields)
@@ -113,11 +116,8 @@ public class AuthController {
     }
 
     private String generateToken(String username) {
-        // Set token expiration (1 hour from now)
-        long expirationTime = 3600000; // 1 hour in milliseconds
-
         // Generate or retrieve the secret key
-        String secretKeyBase64 = userSecretKeyService.generateAndStoreSecretKey(username, expirationTime);
+        String secretKeyBase64 = userSecretKeyService.generateAndStoreSecretKey(username);
 
         // Decode Base64 secret key
         byte[] secretKeyBytes = Base64.getDecoder().decode(secretKeyBase64);
@@ -128,7 +128,6 @@ public class AuthController {
                 .setSubject(username)  // Use 'sub' for username
                 .claim("username", username)  // Explicitly add 'username' to claims
                 .setIssuedAt(new Date())  // Correct way to set 'iat'
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))  // Correct way to set 'exp'
                 .signWith(secretKey)  // Sign with user-specific secret key
                 .compact();
 

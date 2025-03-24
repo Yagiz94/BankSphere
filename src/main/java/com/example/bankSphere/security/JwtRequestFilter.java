@@ -1,9 +1,9 @@
 package com.example.bankSphere.security;
 
+import com.example.bankSphere.service.JwtRedisService;
 import com.example.bankSphere.service.UserSecretKeyService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.security.SignatureException;
 import java.util.Base64;
 
 @Component
@@ -27,6 +26,9 @@ public class JwtRequestFilter implements Filter {
 
     @Autowired
     private UserSecretKeyService userSecretKeyService;  // Inject UserSecretKeyService
+
+    @Autowired
+    private JwtRedisService jwtRedisService;  // Inject JwtRedisService
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -37,6 +39,7 @@ public class JwtRequestFilter implements Filter {
 
         // 1. Skip filtering for public endpoints like /api/test/** or /api/auth/register
         String requestUri = request.getRequestURI();
+        System.out.println("Request URI: " + requestUri);
         if (requestUri.startsWith("/api/test/") || requestUri.equals("/api/auth/register")) {
             // Simply pass the request to the next filter in the chain
             filterChain.doFilter(servletRequest, servletResponse);
@@ -44,13 +47,12 @@ public class JwtRequestFilter implements Filter {
         }
 
         // 2. Extract and validate JWT
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            System.out.println("Received token: " + token);
-            token = token.substring(7); // Strip "Bearer " prefix
-
+        String jwtToken = request.getHeader("Authorization");
+        if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
+            System.out.println("Received token: " + jwtToken);
+            jwtToken = jwtToken.substring(7); // Strip "Bearer " prefix
             // Retrieve username from token
-            String username = extractUsernameFromToken(token);
+            String username = extractUsernameFromToken(jwtToken);
             System.out.println("Extracted username: " + username);
 
             if (username != null) {
@@ -63,7 +65,7 @@ public class JwtRequestFilter implements Filter {
                     Key secretKey = Keys.hmacShaKeyFor(secretKeyBytes);  // Rebuild the key from base64 bytes
                     System.out.println("Decoded secret key length: " + secretKeyBytes.length);
 
-                    if (isTokenValid(token, secretKey)) {
+                    if (isTokenValid(jwtToken, secretKey) && jwtRedisService.isTokenValid(jwtToken)) {
                         // Token is valid, you can add the user to the security context here
                         System.out.println("Token is valid");
                         // Optionally add username or user details to the SecurityContext
@@ -96,6 +98,7 @@ public class JwtRequestFilter implements Filter {
 
         // Continue the filter chain if everything is valid
         filterChain.doFilter(servletRequest, servletResponse);
+        System.out.println("Filter chain completed.");
     }
 
     private String extractUsernameFromToken(String token) {
@@ -152,8 +155,6 @@ public class JwtRequestFilter implements Filter {
 
         return null;
     }
-
-
 
     // Validate the token using the secret key
     private boolean isTokenValid(String token, Key secretKey) {
