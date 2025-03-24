@@ -5,6 +5,7 @@ import com.example.bankSphere.dto.UserRequestDto;
 import com.example.bankSphere.entity.User;
 import com.example.bankSphere.entity.UserLogger;
 import com.example.bankSphere.entity.UserResponse;
+import com.example.bankSphere.entity.UserSecretKey;
 import com.example.bankSphere.exception.UserAlreadyExistsException;
 import com.example.bankSphere.exception.UserFieldsMissingException;
 import com.example.bankSphere.exception.UserLoginCredentialsInvalidException;
@@ -12,6 +13,7 @@ import com.example.bankSphere.exception.UserNotFoundException;
 import com.example.bankSphere.service.AccountService;
 import com.example.bankSphere.service.AuthService;
 import com.example.bankSphere.service.UserLoggerService;
+import com.example.bankSphere.service.UserSecretKeyService;
 import com.mongodb.MongoSocketException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Key;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +44,9 @@ public class AuthController {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private UserSecretKeyService userSecretKeyService; // Inject the service
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody UserRequestDto userDto) {
@@ -73,7 +79,7 @@ public class AuthController {
         // successful registration responds a token value
         return ResponseEntity.ok("{\n" +
                 "\t\"message\": \"User registered successfully!\"" + "\n" +
-                "\t\"token\": \"" + generateToken(user.getUsername(), user.getPassword()) + "\"\n}");
+                "\t\"token\": \"" + generateToken(user.getUsername()) + "\"\n}");
 
     }
 
@@ -106,24 +112,32 @@ public class AuthController {
         return ResponseEntity.ok(new UserResponse("Login successful!"));
     }
 
-    // secure generator
-    private String generateToken(String username, String password) {
-        // Define a secure secret key (using HMAC SHA-256)
-        byte[] secretKeyBytes = new byte[32];  // 32 bytes = 256 bits for HS256
-        new java.security.SecureRandom().nextBytes(secretKeyBytes);
-        Key secretKey = Keys.hmacShaKeyFor(secretKeyBytes);  // Using Keys.hmacShaKeyFor for HS256 algorithm
+    private String generateToken(String username) {
+        // Set token expiration (1 hour from now)
+        long expirationTime = 3600000; // 1 hour in milliseconds
 
-        // Set token expiration (e.g., 1 minute from now)
-        long expirationTime = 60000; // 60,000 ms = 1 minute
+        // Generate or retrieve the secret key
+        String secretKeyBase64 = userSecretKeyService.generateAndStoreSecretKey(username, expirationTime);
+
+        // Decode Base64 secret key
+        byte[] secretKeyBytes = Base64.getDecoder().decode(secretKeyBase64);
+        Key secretKey = Keys.hmacShaKeyFor(secretKeyBytes);
 
         // Create JWT token using claims and signing with the secure key
-        return Jwts.builder()
-                .claim("username", username) // Add username as a claim
-                .claim("password", password) // Add password as a claim (optional, not recommended in production)
-                .claim("iat", new Date()) // Set issued at (iat) claim
-                .claim("exp", new Date(System.currentTimeMillis() + expirationTime)) // Set expiration (exp) claim
-                .signWith(secretKey)  // Sign the token with the secure key
+        String token = Jwts.builder()
+                .setSubject(username)  // Use 'sub' for username
+                .claim("username", username)  // Explicitly add 'username' to claims
+                .setIssuedAt(new Date())  // Correct way to set 'iat'
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))  // Correct way to set 'exp'
+                .signWith(secretKey)  // Sign with user-specific secret key
                 .compact();
+
+        // Debug prints
+        System.out.println("Generated token: " + token);
+        System.out.println("Secret key length: " + secretKeyBytes.length);
+        System.out.println("Secret key (Base64): " + secretKeyBase64);
+
+        return token;
     }
 
 }
