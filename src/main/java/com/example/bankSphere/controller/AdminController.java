@@ -1,14 +1,11 @@
 // controller/AdminController.java
 package com.example.bankSphere.controller;
 
-import com.example.bankSphere.dto.AccountDto;
-import com.example.bankSphere.dto.TransactionDto;
 import com.example.bankSphere.dto.UserResponseDto;
 import com.example.bankSphere.entity.Account;
-import com.example.bankSphere.entity.Transaction;
 import com.example.bankSphere.service.AccountService;
 import com.example.bankSphere.service.AdminService;
-import com.example.bankSphere.service.TransactionService;
+import com.example.bankSphere.service.JwtRedisService;
 import com.example.bankSphere.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +25,7 @@ public class AdminController {
     @Autowired
     private UserService userService;
     @Autowired
-    private TransactionService transactionService;
+    JwtRedisService jwtRedisService;
 
     @GetMapping("/users")
     public List<UserResponseDto> getAllUsers() {
@@ -37,8 +34,10 @@ public class AdminController {
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        System.out.println("Deleting user with id: " + id);
         adminService.deleteUser(id);
+        // remove user token from Redis
+        jwtRedisService.removeSecretKey(id.toString());
+        System.out.println("User deleted successfully.");
         return ResponseEntity.ok("User deleted successfully");
     }
 
@@ -61,27 +60,17 @@ public class AdminController {
         }
     }
 
-//    @GetMapping("/accounts/{id}/transactions")
-//    public ResponseEntity<?> getAccountTransactions(@PathVariable Long id) {
-//        try {
-//            // Retrieve all transactions associated with the account
-//            return ResponseEntity.ok(accountService.getAllTransactions(id));
-//        } catch (RuntimeException e) {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
-
     @DeleteMapping("/accounts/{id}")
     public ResponseEntity<String> deleteAccount(@PathVariable Long id) {
-        System.out.println("Deleting account with id: " + id);
+        System.out.println("Account deleted");
         adminService.deleteAccount(id);
         return ResponseEntity.ok("Account deleted successfully");
     }
 
     @DeleteMapping("/transactions/{id}")
     public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
-        System.out.println("Deleting user with id: " + id);
+        System.out.println("Transaction deleted.");
         adminService.deleteTransaction(id);
-        return ResponseEntity.ok("User deleted successfully");
+        return ResponseEntity.ok("Transaction deleted successfully");
     }
 }
