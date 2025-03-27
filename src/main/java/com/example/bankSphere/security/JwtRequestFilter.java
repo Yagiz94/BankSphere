@@ -1,13 +1,10 @@
 package com.example.bankSphere.security;
 
 import com.example.bankSphere.service.JwtRedisService;
-import com.example.bankSphere.service.UserSecretKeyService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,15 +15,10 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Base64;
 
 @Component
 public class JwtRequestFilter implements Filter {
-
-    @Autowired
-    private UserSecretKeyService userSecretKeyService;  // Inject UserSecretKeyService
-
     @Autowired
     private JwtRedisService jwtRedisService;  // Inject JwtRedisService
 
@@ -49,27 +41,21 @@ public class JwtRequestFilter implements Filter {
         // 2. Extract and validate JWT
         String jwtToken = request.getHeader("Authorization");
         if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
-            System.out.println("Received token: " + jwtToken);
+//            System.out.println("Received token: " + jwtToken);
             jwtToken = jwtToken.substring(7); // Strip "Bearer " prefix
             // Retrieve username from token
             String username = extractUsernameFromToken(jwtToken);
-            System.out.println("Extracted username: " + username);
-
+            // todo we may check if the userName exists in the database
             if (username != null) {
                 // Retrieve the secret key from the database for this user
-                String secretKeyBase64 = userSecretKeyService.retrieveSecretKey(username);
-                System.out.println("Retrieved secret key (Base64): " + secretKeyBase64);
-
+                String secretKeyBase64 = jwtRedisService.retrieveSecretKey(username);
                 if (secretKeyBase64 != null) {
-                    byte[] secretKeyBytes = Base64.getDecoder().decode(secretKeyBase64);  // Decode base64 secret key
-                    Key secretKey = Keys.hmacShaKeyFor(secretKeyBytes);  // Rebuild the key from base64 bytes
-                    System.out.println("Decoded secret key length: " + secretKeyBytes.length);
-
-                    if (isTokenValid(jwtToken, secretKey) && jwtRedisService.isTokenValid(jwtToken)) {
-                        // Token is valid, you can add the user to the security context here
-                        System.out.println("Token is valid");
-                        // Optionally add username or user details to the SecurityContext
-                        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, null, null));
+                    String storedToken = new String(Base64.getDecoder().decode(secretKeyBase64), StandardCharsets.UTF_8);
+                    if (storedToken.equals(jwtToken)) {
+                        // Token is valid, add the user to the security context
+                        SecurityContextHolder.getContext().setAuthentication(
+                                new UsernamePasswordAuthenticationToken(username, null, null));
+                        System.out.println("User is authenticated.");
                     } else {
                         System.out.println("Invalid or expired token.");
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -111,35 +97,21 @@ public class JwtRequestFilter implements Filter {
 
             // Decode the payload (which is the second part) using Base64 URL decoding
             String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
-            System.out.println("Decoded payload: " + payloadJson);
 
             // Parse the JSON to extract the username claim
             ObjectMapper mapper = new ObjectMapper();
             JsonNode payloadNode = mapper.readTree(payloadJson);
             String username = payloadNode.has("username") ? payloadNode.get("username").asText() : null;
-            System.out.println("Extracted username (from payload): " + username);
 
             if (username == null) {
-                throw new IllegalArgumentException("Username claim not found in token.");
+                throw new IllegalArgumentException("User name claim not found in token.");
             }
 
             // Retrieve the secret key for this user from the database
-            String secretKeyBase64 = userSecretKeyService.retrieveSecretKey(username);
+            String secretKeyBase64 = jwtRedisService.retrieveSecretKey(username);
             if (secretKeyBase64 == null) {
-                throw new IllegalArgumentException("Secret key not found for user: " + username);
+                throw new IllegalArgumentException("Secret key not found for the user");
             }
-            System.out.println("Retrieved secret key (Base64): " + secretKeyBase64);
-
-            // Decode the secret key and prepare it for verification
-            byte[] secretKeyBytes = Base64.getDecoder().decode(secretKeyBase64);
-            System.out.println("Decoded secret key length: " + secretKeyBytes.length);
-            Key secretKey = Keys.hmacShaKeyFor(secretKeyBytes);
-
-            // Now, validate the token with the correct secret key
-            Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(token);
 
             // If validation succeeds, return the extracted username
             return username;
@@ -150,34 +122,8 @@ public class JwtRequestFilter implements Filter {
             System.out.println("JWT error: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error extracting username from token: " + e.getMessage());
-            e.printStackTrace();
         }
 
         return null;
     }
-
-    // Validate the token using the secret key
-    private boolean isTokenValid(String token, Key secretKey) {
-        try {
-            Jwts.parser()
-                    .setSigningKey(secretKey)  // Use the provided secret key
-                    .build()
-                    .parseClaimsJws(token);  // Parse and validate the JWT token
-
-            return true;
-
-        } catch (ExpiredJwtException e) {
-            // Token has expired
-            System.out.println("Token has expired");
-        } catch (JwtException e) {
-            // Invalid token (signature mismatch or malformed token)
-            System.out.println("Invalid JWT token: " + e.getMessage());
-        } catch (Exception e) {
-            // Other unexpected errors
-            System.out.println("Error while validating token: " + e.getMessage());
-        }
-
-        return false;
-    }
-
 }

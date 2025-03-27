@@ -9,7 +9,9 @@ import com.example.bankSphere.exception.UserAlreadyExistsException;
 import com.example.bankSphere.exception.UserFieldsMissingException;
 import com.example.bankSphere.exception.UserLoginCredentialsInvalidException;
 import com.example.bankSphere.exception.UserNotFoundException;
-import com.example.bankSphere.service.*;
+import com.example.bankSphere.service.AuthService;
+import com.example.bankSphere.service.JwtRedisService;
+import com.example.bankSphere.service.UserLoggerService;
 import com.mongodb.MongoSocketException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -22,10 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Key;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -37,12 +36,6 @@ public class AuthController {
 
     @Autowired
     private UserLoggerService userLoggerService;
-
-    @Autowired
-    private AccountService accountService;
-
-    @Autowired
-    private UserSecretKeyService userSecretKeyService; // Inject the service
 
     @Autowired
     private JwtRedisService jwtRedisService; // Inject the service
@@ -75,11 +68,14 @@ public class AuthController {
             System.out.println("Something went wrong with logging but user registration is successful");
         }
 
-        // successful registration responds a token value
+        // Generate a token
         String jwtToken = generateToken(user.getUsername());
-        // save genereated token on redis
-        // token expiration time is 0 (infinite) for now
-        jwtRedisService.saveToken(jwtToken, user.getUsername(), 0);
+
+        // Convert the token to a secret key
+        String secretKeyBase64 = Base64.getEncoder().encodeToString(jwtToken.getBytes());
+
+        // Save the secret key in Redis
+        jwtRedisService.saveSecretKey(user.getUsername(), secretKeyBase64);
 
         return ResponseEntity.ok("{\n" +
                 "\t\"message\": \"User registered successfully!\"" + "\n" +
@@ -117,7 +113,7 @@ public class AuthController {
 
     private String generateToken(String username) {
         // Generate or retrieve the secret key
-        String secretKeyBase64 = userSecretKeyService.generateAndStoreSecretKey(username);
+        String secretKeyBase64 = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
 
         // Decode Base64 secret key
         byte[] secretKeyBytes = Base64.getDecoder().decode(secretKeyBase64);

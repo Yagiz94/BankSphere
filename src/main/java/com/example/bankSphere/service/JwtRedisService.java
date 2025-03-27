@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.TimeUnit;
-
 @Service
 public class JwtRedisService {
 
@@ -16,22 +14,23 @@ public class JwtRedisService {
     /**
      * Save a JWT token in Redis with a specified TTL (in minutes).
      */
-    public void saveToken(String token, String username, long ttlMinutes) {
+    public void saveSecretKey(String userName, String secretKey) {
         // Use token as key and username (or any identifier) as value
-        redisTemplate.opsForValue().set(token, username, ttlMinutes, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(userName, secretKey);
     }
 
     /**
-     * Check if the token exists in Redis.
+     * Retrieve the secret key for a given username from Redis.
      */
-    public boolean isTokenValid(String token) {
-        return redisTemplate.hasKey(token);
+    public String retrieveSecretKey(String userName) {
+        // Retrieve the secret key using the username as the key
+        return redisTemplate.opsForValue().get(userName);
     }
 
     /**
      * Remove a JWT token from Redis (e.g., during logout).
      */
-    public void removeToken(String token) {
+    public void removeSecretKey(String token) {
         redisTemplate.delete(token);
     }
 }
